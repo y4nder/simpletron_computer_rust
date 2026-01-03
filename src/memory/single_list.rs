@@ -2,6 +2,8 @@ use crate::error::SimpletronError;
 use crate::memory::memory_interface::MemoryInterface;
 use crate::memory::memory_payload::MemoryPayload;
 
+const DEFAULT_CELL: &str = "0000";
+
 pub struct SingleList {
     pub memory: Vec<String>,
 }
@@ -9,8 +11,8 @@ pub struct SingleList {
 impl SingleList {
     pub fn new(size: Option<u16>) -> Self {
         let memory = match size {
-            Some(size) => vec!["0000".to_string(); size as usize],
-            None => vec!["0000".to_string(); 99 as usize],
+            Some(size) => vec![DEFAULT_CELL.to_string(); size as usize],
+            None => vec!["0000".to_string(); 100 as usize],
         };
 
         SingleList { memory }
@@ -47,6 +49,10 @@ impl SingleList {
             println!();
         }
     }
+
+    fn is_valid_address(&self, address: usize) -> bool {
+        self.memory.len() > address
+    }
 }
 
 impl MemoryInterface for SingleList {
@@ -55,12 +61,21 @@ impl MemoryInterface for SingleList {
     }
 
     fn store_data(&mut self, payload: MemoryPayload) -> Result<bool, SimpletronError> {
-        self.memory.insert(payload.address, payload.data.value);
+        if payload.address >= self.memory.len() {
+            return Err(SimpletronError::InvalidAddressError(
+                payload.address.to_string(),
+            ));
+        }
+
+        self.memory[payload.address] = payload.data.value;
         Ok(true)
     }
 
-    fn read_data(&self, address: usize) -> String {
-        self.memory[address].clone()
+    fn read_data(&self, address: usize) -> Result<String, SimpletronError> {
+        match self.is_valid_address(address) {
+            true => Ok(self.memory[address].clone()),
+            false => Err(SimpletronError::InvalidAddressError(address.to_string())),
+        }
     }
 
     fn dump(&self, index: isize) {

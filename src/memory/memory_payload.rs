@@ -7,8 +7,8 @@ pub struct MemoryData {
     pub value: String,
 }
 
-impl From<u32> for MemoryData {
-    fn from(value: u32) -> Self {
+impl From<isize> for MemoryData {
+    fn from(value: isize) -> Self {
         MemoryData {
             value: value.to_string(),
         }
