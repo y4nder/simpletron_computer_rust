@@ -1,9 +1,13 @@
 use core::fmt;
+use std::io;
 
 #[derive(Debug)]
 pub enum SimpletronError {
     StoreDataError(String),
     InvalidAddressError(String),
+    InvalidInstructionLine { line: usize },
+    Io(io::Error),
+    InvalidAddress { line: usize },
 }
 
 impl fmt::Display for SimpletronError {
@@ -13,6 +17,19 @@ impl fmt::Display for SimpletronError {
             SimpletronError::InvalidAddressError(invalid_address) => {
                 write!(f, "{} is an invalid address", invalid_address)
             }
+            SimpletronError::Io(error) => write!(f, "I/O error {}", error),
+            SimpletronError::InvalidInstructionLine { line } => {
+                write!(f, "instruction at line {} was invalid", line)
+            }
+            SimpletronError::InvalidAddress { line } => {
+                write!(f, "address at line {} was invalid", line)
+            }
         }
+    }
+}
+
+impl From<std::io::Error> for SimpletronError {
+    fn from(value: std::io::Error) -> Self {
+        SimpletronError::Io(value)
     }
 }
