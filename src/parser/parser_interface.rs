@@ -1,5 +1,5 @@
-use crate::{Instruction, error::SimpletronError};
+use crate::{ParsedInstruction, error::SimpletronError};
 
 pub trait ParserInterface {
-    fn parse(&self, file_address: String) -> Result<Vec<Instruction>, SimpletronError>;
+    fn parse(&self, file_address: String) -> Result<Vec<ParsedInstruction>, SimpletronError>;
 }

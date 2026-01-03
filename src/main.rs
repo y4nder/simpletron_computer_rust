@@ -6,11 +6,13 @@ use simpletron_rust::{
 
 fn main() {
     let debug = true;
-    let parser = LowLevelParser::new(debug);
-    let memory = SingleList::new(None);
+    let mut memory = SingleList::new(None);
 
-    let mut loader = MemoryLoader::new(parser, memory, debug);
-    loader.load("test.sml".to_string()).unwrap();
+    {
+        let parser = LowLevelParser::new(debug);
+        let mut loader = MemoryLoader::new(parser, &mut memory, debug);
+        loader.load("test.sml".to_string()).unwrap();
+    }
 
-    loader.memory().dump(-1);
+    memory.dump(-1);
 }

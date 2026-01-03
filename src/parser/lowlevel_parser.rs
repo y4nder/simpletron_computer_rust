@@ -3,14 +3,14 @@ use std::{
     io::{BufRead, BufReader},
 };
 
-use crate::{Instruction, error::SimpletronError, parser::ParserInterface};
+use crate::{ParsedInstruction, error::SimpletronError, parser::ParserInterface};
 
 pub struct LowLevelParser {
     pub debug: bool,
 }
 
 impl ParserInterface for LowLevelParser {
-    fn parse(&self, path: String) -> Result<Vec<Instruction>, SimpletronError> {
+    fn parse(&self, path: String) -> Result<Vec<ParsedInstruction>, SimpletronError> {
         let reader = Box::new(BufReader::new(File::open(path)?));
         self.start_parse(reader)
     }
@@ -21,7 +21,10 @@ impl LowLevelParser {
         Self { debug }
     }
 
-    fn start_parse<R: BufRead>(&self, reader: R) -> Result<Vec<Instruction>, SimpletronError> {
+    fn start_parse<R: BufRead>(
+        &self,
+        reader: R,
+    ) -> Result<Vec<ParsedInstruction>, SimpletronError> {
         if self.debug {
             println!("{}", "-".repeat(50));
             println!("Parsing file\n");
@@ -51,7 +54,7 @@ impl LowLevelParser {
                 .parse::<usize>()
                 .map_err(|_| SimpletronError::InvalidAddress { line: line_no + 1 })?;
 
-            let instruction = Instruction {
+            let instruction = ParsedInstruction {
                 address,
                 data: parts[1].to_string(),
             };

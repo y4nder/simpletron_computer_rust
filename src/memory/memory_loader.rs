@@ -3,22 +3,22 @@ use crate::memory::memory_interface::MemoryInterface;
 use crate::memory::memory_payload::{MemoryData, MemoryPayload};
 use crate::parser::ParserInterface;
 
-pub struct MemoryLoader<P, M>
+pub struct MemoryLoader<'a, P, M>
 where
     P: ParserInterface,
     M: MemoryInterface,
 {
     parser: P,
-    memory: M,
+    memory: &'a mut M,
     debug: bool,
 }
 
-impl<P, M> MemoryLoader<P, M>
+impl<'a, P, M> MemoryLoader<'a, P, M>
 where
     P: ParserInterface,
     M: MemoryInterface,
 {
-    pub fn new(parser: P, memory: M, debug: bool) -> Self {
+    pub fn new(parser: P, memory: &'a mut M, debug: bool) -> Self {
         Self {
             parser,
             memory,
