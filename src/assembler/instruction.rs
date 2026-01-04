@@ -43,4 +43,5 @@ pub struct AsmInstruction {
 pub enum Operand {
     Immediate(usize),
     Label(String),
+    Variable(String),
 }
