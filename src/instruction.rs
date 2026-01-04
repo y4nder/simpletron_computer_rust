@@ -1,4 +1,5 @@
-use crate::operation::Opcode;
+use crate::{error::SimpletronError, operation::Opcode};
+use std::convert::TryFrom;
 
 #[derive(Debug, Clone)]
 pub struct ParsedInstruction {
@@ -11,12 +12,18 @@ pub struct Instruction {
     pub operand: usize,
 }
 
-impl From<ParsedInstruction> for Instruction {
-    fn from(value: ParsedInstruction) -> Self {
-        let data: u8 = value.data.parse().expect("Invalid instruction");
-        Instruction {
-            opcode: Opcode::from_code(data).unwrap(),
-            operand: value.address,
-        }
+impl TryFrom<ParsedInstruction> for Instruction {
+    type Error = SimpletronError;
+
+    fn try_from(value: ParsedInstruction) -> Result<Self, Self::Error> {
+        let raw: i32 = value
+            .data
+            .parse()
+            .map_err(|_| SimpletronError::InvalidInstruction(value.data.clone()))?;
+
+        let opcode = Opcode::try_from(raw / 100)?;
+        let operand = (raw % 100) as usize;
+
+        Ok(Self { opcode, operand })
     }
 }

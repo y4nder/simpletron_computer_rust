@@ -8,10 +8,11 @@ pub enum SimpletronError {
     InvalidInstructionLine { line: usize },
     Io(io::Error),
     InvalidAddress { line: usize },
-    InvalidOpcode(u8),
+    InvalidOpcode(i32),
     InvalidReadInput(String),
     DivisionByZero,
     InvalidMemoryData(usize),
+    InvalidInstruction(String),
 }
 
 impl fmt::Display for SimpletronError {
@@ -33,6 +34,9 @@ impl fmt::Display for SimpletronError {
             SimpletronError::DivisionByZero => write!(f, "division by zero error"),
             SimpletronError::InvalidMemoryData(address) => {
                 write!(f, "invalid memory data at address: {}", address)
+            }
+            SimpletronError::InvalidInstruction(error) => {
+                write!(f, "{} is an invalid instruction", error)
             }
         }
     }

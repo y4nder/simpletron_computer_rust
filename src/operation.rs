@@ -25,8 +25,10 @@ pub enum Opcode {
     Halt,
 }
 
-impl Opcode {
-    pub fn from_code(code: u8) -> Result<Self, SimpletronError> {
+impl TryFrom<i32> for Opcode {
+    type Error = SimpletronError;
+
+    fn try_from(code: i32) -> Result<Self, Self::Error> {
         use Opcode::*;
 
         match code {
@@ -55,4 +57,3 @@ impl Opcode {
         }
     }
 }
-

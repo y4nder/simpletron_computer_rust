@@ -1,12 +1,12 @@
 use simpletron_rust::{
-    SingleList,
-    memory::{memory_interface::MemoryInterface, memory_loader::MemoryLoader},
-    parser::lowlevel_parser::LowLevelParser,
+    SingleList, controller::Controller, memory::memory_loader::MemoryLoader,
+    parser::lowlevel_parser::LowLevelParser, processor::simple_processor::SimpleProcessor,
 };
 
 fn main() {
     let debug = true;
     let mut memory = SingleList::new(None);
+    let cpu = SimpleProcessor::new();
 
     {
         let parser = LowLevelParser::new(debug);
@@ -14,5 +14,6 @@ fn main() {
         loader.load("test.sml".to_string()).unwrap();
     }
 
-    memory.dump(-1);
+    let mut controller = Controller::new(cpu, memory, debug);
+    let _ = controller.run();
 }

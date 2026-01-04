@@ -2,7 +2,7 @@ use crate::error::SimpletronError;
 use crate::memory::memory_interface::MemoryInterface;
 use crate::memory::memory_payload::MemoryPayload;
 
-const DEFAULT_CELL: &str = "0000";
+const DEFAULT_CELL: &str = "0";
 
 pub struct SingleList {
     pub memory: Vec<String>,
@@ -12,7 +12,7 @@ impl SingleList {
     pub fn new(size: Option<u16>) -> Self {
         let memory = match size {
             Some(size) => vec![DEFAULT_CELL.to_string(); size as usize],
-            None => vec!["0000".to_string(); 100 as usize],
+            None => vec!["0".to_string(); 100 as usize],
         };
 
         SingleList { memory }
@@ -38,9 +38,9 @@ impl SingleList {
             for j in i..(i + 10) {
                 if j < len {
                     let cell = if Some(j) == pointer_index {
-                        format!("-> {}", self.memory[j])
+                        format!("-> {:0>4}", self.memory[j])
                     } else {
-                        format!("+{}", self.memory[j])
+                        format!("+{:0>4}", self.memory[j])
                     };
 
                     print!("{:>7}  ", cell);

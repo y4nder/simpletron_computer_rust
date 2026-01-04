@@ -1,4 +1,5 @@
 use crate::{
+    ParsedInstruction,
     error::SimpletronError,
     instruction::Instruction,
     memory::{
@@ -36,43 +37,87 @@ where
     P: ProcessorInterface,
     M: MemoryInterface,
 {
-    pub fn execute(&mut self, instruction: Instruction) -> Result<(), SimpletronError> {
+    pub fn run(&mut self) -> Result<(), SimpletronError> {
+        println!("*** Welcome to Simpletron ***");
+        println!("*** Program Loaded Succesfully ***\n");
+        loop {
+            let (address, data) = self.fetch_instruction()?;
+            let parsed_instr = ParsedInstruction { address, data };
+            self.cpu.update_state(&parsed_instr);
+
+            if self.debug {
+                println!("");
+                self.cpu.dump();
+                self.memory.dump(self.cpu.get_pc().try_into().unwrap());
+            }
+            self.execute(Instruction::try_from(parsed_instr)?)?;
+
+            if self.debug {
+                wait_for_keypress();
+            }
+        }
+
+        fn wait_for_keypress() {
+            println!("\nPress Enter to continue...");
+            let mut buf = String::new();
+            let _ = io::stdin().read_line(&mut buf);
+        }
+    }
+
+    fn fetch_instruction(&self) -> Result<(usize, String), SimpletronError> {
+        let address = usize::try_from(self.cpu.get_pc()).unwrap();
+        let data = self.memory.read_data(address)?;
+        Ok((address, data))
+    }
+
+    pub fn execute(&mut self, instr: Instruction) -> Result<(), SimpletronError> {
         use Opcode::*;
 
-        match instruction.opcode {
-            Read => self.read(instruction.operand, self.debug)?,
-            Write => self.write(instruction.operand, self.debug)?,
+        match instr.opcode {
+            Read => self.read(instr.operand, self.debug)?,
+            Write => self.write(instr.operand, self.debug)?,
             WriteAcc => self.write_acc(self.debug)?,
             ReadI => self.read_i(self.debug)?,
-            LoadM => self.load_m(instruction.operand, self.debug)?,
-            Store => self.store(instruction.operand, self.debug)?,
-            LoadI => self.load_i(instruction.operand, self.debug)?,
-            AddM => self.add_m(instruction.operand, self.debug)?,
-            SubM => self.sub_m(instruction.operand, self.debug)?,
-            DivM => self.div_m(instruction.operand, self.debug)?,
-            ModM => self.mod_m(instruction.operand, self.debug)?,
-            MulM => self.mul_m(instruction.operand, self.debug)?,
-            AddI => self.add_i(instruction.operand, self.debug)?,
-            SubI => self.sub_i(instruction.operand, self.debug)?,
-            DivI => self.div_i(instruction.operand, self.debug)?,
-            ModI => self.mod_i(instruction.operand, self.debug)?,
-            MulI => self.mul_i(instruction.operand, self.debug)?,
-            Jump => self.jump(instruction.operand, self.debug)?,
-            JumpIfNegative => self.jump_if_negative(instruction.operand, self.debug)?,
-            JumpIfZero => self.jump_if_zero(instruction.operand, self.debug)?,
+            LoadM => self.load_m(instr.operand, self.debug)?,
+            Store => self.store(instr.operand, self.debug)?,
+            LoadI => self.load_i(instr.operand, self.debug)?,
+            AddM => self.add_m(instr.operand, self.debug)?,
+            SubM => self.sub_m(instr.operand, self.debug)?,
+            DivM => self.div_m(instr.operand, self.debug)?,
+            ModM => self.mod_m(instr.operand, self.debug)?,
+            MulM => self.mul_m(instr.operand, self.debug)?,
+            AddI => self.add_i(instr.operand, self.debug)?,
+            SubI => self.sub_i(instr.operand, self.debug)?,
+            DivI => self.div_i(instr.operand, self.debug)?,
+            ModI => self.mod_i(instr.operand, self.debug)?,
+            MulI => self.mul_i(instr.operand, self.debug)?,
+            Jump => self.jump(instr.operand, self.debug)?,
+            JumpIfNegative => self.jump_if_negative(instr.operand, self.debug)?,
+            JumpIfZero => self.jump_if_zero(instr.operand, self.debug)?,
             Halt => self.halt(self.debug)?,
         }
         Ok(())
     }
 
-    fn read(&mut self, address: usize, debug: bool) -> Result<(), SimpletronError> {
+    fn debug(&self, debug: bool, msg: impl AsRef<str>) {
         if debug {
             println!("{}", "-".repeat(100));
-            println!(
-                "get the value from keyboard and store to address {}",
-                address
-            );
+            println!("[DEBUG] {}", msg.as_ref());
         }
+    }
+}
+
+// instructions definitions
+impl<P, M> Controller<P, M>
+where
+    P: ProcessorInterface,
+    M: MemoryInterface,
+{
+    fn read(&mut self, address: usize, debug: bool) -> Result<(), SimpletronError> {
+        self.debug(
+            debug,
+            &format!("READ from keyboard -> Memory[+{:0>4}]", address),
+        );
 
         print!("Enter a number: ");
         io::stdout().flush().unwrap();
@@ -99,31 +144,27 @@ where
     }
 
     fn write(&mut self, address: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
-
         let value = self.memory.read_data(address)?;
+        self.debug(
+            debug,
+            &format!("WRITE <- Memory[+{:0>4}] = {}", address, value),
+        );
         println!("Memory[{}] = {}", address, value);
         self.cpu.increment_pc();
         Ok(())
     }
 
     fn write_acc(&mut self, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(debug, &format!("Writing ACC value"));
 
         let value = self.cpu.get_acc_value();
-        println!("accumulator: {}", value);
+        println!("ACC: {}", value);
         self.cpu.increment_pc();
         Ok(())
     }
 
     fn read_i(&mut self, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(debug, &format!("READ from keyboard -> ACC"));
 
         print!("Enter a number: ");
         io::stdout().flush().unwrap();
@@ -144,9 +185,7 @@ where
     }
 
     fn load_m(&mut self, address: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(debug, &format!("ACC <- Memory[+{:0>4}]", address));
         let value = self.memory.read_data(address)?;
         self.cpu.write_acc(value.parse().unwrap());
         self.cpu.increment_pc();
@@ -154,9 +193,7 @@ where
     }
 
     fn store(&mut self, address: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(debug, &format!("ACC -> Memory[+{:0>4}]", address));
 
         self.memory.store_data(MemoryPayload {
             address,
@@ -170,9 +207,7 @@ where
     }
 
     fn load_i(&mut self, operand: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(debug, &format!("ACC <- {}", operand));
 
         self.cpu.write_acc(operand.try_into().unwrap());
         self.cpu.increment_pc();
@@ -180,9 +215,7 @@ where
     }
 
     fn add_m(&mut self, address: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(debug, &format!("ACC += value at Memory[+{:0>4}]", address));
 
         let value: i32 = self
             .memory
@@ -198,9 +231,7 @@ where
     }
 
     fn sub_m(&mut self, address: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(debug, &format!("ACC -= value at Memory[+{:0>4}]", address));
 
         let value: i32 = self
             .memory
@@ -216,9 +247,7 @@ where
     }
 
     fn mul_m(&mut self, address: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(debug, &format!("ACC *= value at Memory[+{:0>4}]", address));
 
         let value: i32 = self
             .memory
@@ -234,9 +263,7 @@ where
     }
 
     fn div_m(&mut self, address: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(debug, &format!("ACC /= value at Memory[+{:0>4}]", address));
 
         let divisor: i32 = self
             .memory
@@ -256,9 +283,7 @@ where
     }
 
     fn mod_m(&mut self, address: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(debug, &format!("ACC %= value at Memory[+{:0>4}]", address));
 
         let divisor: i32 = self
             .memory
@@ -278,9 +303,7 @@ where
     }
 
     fn add_i(&mut self, operand: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(debug, &format!("ACC += value {}", operand));
 
         let acc = self.cpu.get_acc_value() as i32;
         self.cpu.write_acc((acc + operand as i32) as u32);
@@ -290,9 +313,7 @@ where
     }
 
     fn sub_i(&mut self, operand: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(debug, &format!("ACC -= value {}", operand));
 
         let acc = self.cpu.get_acc_value() as i32;
         self.cpu.write_acc((acc - operand as i32) as u32);
@@ -302,9 +323,7 @@ where
     }
 
     fn mul_i(&mut self, operand: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(debug, &format!("ACC *= value {}", operand));
 
         let acc = self.cpu.get_acc_value() as i32;
         self.cpu.write_acc((acc * operand as i32) as u32);
@@ -314,9 +333,7 @@ where
     }
 
     fn div_i(&mut self, operand: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(debug, &format!("ACC /= value {}", operand));
 
         if operand == 0 {
             return Err(SimpletronError::DivisionByZero);
@@ -330,9 +347,7 @@ where
     }
 
     fn mod_i(&mut self, operand: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(debug, &format!("ACC %= value {}", operand));
 
         if operand == 0 {
             return Err(SimpletronError::DivisionByZero);
@@ -346,18 +361,16 @@ where
     }
 
     fn jump(&mut self, address: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
-
+        self.debug(debug, &format!("JUMP -> address Memory[+{:0>4}]", address));
         self.cpu.set_pc(address);
         Ok(())
     }
 
     fn jump_if_negative(&mut self, address: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(
+            debug,
+            &format!("JUMP IF NEG -> address Memory[+{:0>4}]", address),
+        );
 
         let acc = self.cpu.get_acc_value() as i32;
         if acc < 0 {
@@ -369,9 +382,10 @@ where
     }
 
     fn jump_if_zero(&mut self, address: usize, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-        }
+        self.debug(
+            debug,
+            &format!("JUMP IF ZERO -> address Memory[+{:0>4}]", address),
+        );
 
         let acc = self.cpu.get_acc_value();
         if acc == 0 {
@@ -383,10 +397,7 @@ where
     }
 
     fn halt(&mut self, debug: bool) -> Result<(), SimpletronError> {
-        if debug {
-            println!("{}", "-".repeat(100));
-            println!("Program halted");
-        }
+        self.debug(debug, &format!("HALT"));
 
         self.cpu.dump();
         self.memory.dump(-1);
