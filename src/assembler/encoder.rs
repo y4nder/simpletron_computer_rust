@@ -40,10 +40,11 @@ pub fn encode(instr: &AsmInstruction) -> Result<u16, SimpletronError> {
 
     match &instr.operand {
         Some(Operand::Immediate(value)) => Ok(opcode * 100 + *value as u16),
-        Some(Operand::Label(_)) => {
-            // This should NEVER reach encoder if second pass worked
-            Err(SimpletronError::UnresolvedLabel)
-        }
+
+        // These should NEVER reach the encoder if passes are correct
+        Some(Operand::Label(_)) => Err(SimpletronError::UnresolvedLabel),
+        Some(Operand::Variable(_)) => Err(SimpletronError::UnresolvedVariable),
+
         None => Ok(opcode * 100),
     }
 }
