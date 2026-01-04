@@ -1,15 +1,12 @@
-use crate::{
-    error::SimpletronError,
-    instruction::Instruction,
-    instruction::ParsedInstruction,
-    memory::{MemoryData, MemoryInterface, MemoryPayload},
-    operation::Opcode,
-    processor::ProcessorInterface,
-};
+use crate::vm::error::SimpletronError;
+use crate::vm::instruction::Instruction;
+use crate::vm::loader::ParsedInstruction;
+use crate::vm::memory::{MemoryData, MemoryInterface, MemoryPayload};
+use crate::vm::processor::ProcessorInterface;
 
 use std::io::{self, Write};
 
-pub struct Controller<P, M>
+pub struct Orchestrator<P, M>
 where
     P: ProcessorInterface,
     M: MemoryInterface,
@@ -19,7 +16,7 @@ where
     debug: bool,
 }
 
-impl<P, M> Controller<P, M>
+impl<P, M> Orchestrator<P, M>
 where
     P: ProcessorInterface,
     M: MemoryInterface,
@@ -29,7 +26,7 @@ where
     }
 }
 
-impl<P, M> Controller<P, M>
+impl<P, M> Orchestrator<P, M>
 where
     P: ProcessorInterface,
     M: MemoryInterface,
@@ -68,7 +65,7 @@ where
     }
 
     pub fn execute(&mut self, instr: Instruction) -> Result<(), SimpletronError> {
-        use Opcode::*;
+        use crate::vm::operation::Opcode::*;
 
         match instr.opcode {
             Read => self.read(instr.operand, self.debug)?,
@@ -105,7 +102,7 @@ where
 }
 
 // instructions definitions
-impl<P, M> Controller<P, M>
+impl<P, M> Orchestrator<P, M>
 where
     P: ProcessorInterface,
     M: MemoryInterface,

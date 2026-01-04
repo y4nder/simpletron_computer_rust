@@ -1,15 +1,9 @@
-use crate::{error::SimpletronError, operation::Opcode};
-use std::convert::TryFrom;
+use crate::vm::{error::SimpletronError, instruction::Instruction, operation::Opcode};
 
 #[derive(Debug, Clone)]
 pub struct ParsedInstruction {
     pub address: usize,
     pub data: String,
-}
-
-pub struct Instruction {
-    pub opcode: Opcode,
-    pub operand: usize,
 }
 
 impl TryFrom<ParsedInstruction> for Instruction {

@@ -1,5 +1,5 @@
-use crate::instruction::ParsedInstruction;
-use crate::processor::ProcessorInterface;
+use crate::vm::loader::ParsedInstruction;
+use crate::vm::processor::ProcessorInterface;
 
 pub struct SimpleProcessor {
     pub accumulator: u32,

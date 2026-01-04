@@ -1,4 +1,4 @@
-use crate::error::SimpletronError;
+use crate::vm::error::SimpletronError;
 
 #[derive(Debug, Clone, Copy)]
 pub enum Opcode {

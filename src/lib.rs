@@ -1,8 +1,4 @@
+pub mod assembler;
 pub mod cli;
-pub mod controller;
-pub mod error;
-pub mod instruction;
-pub mod memory;
-pub mod operation;
-pub mod parser;
-pub mod processor;
+pub mod orchestrator;
+pub mod vm;
