@@ -1,45 +1,36 @@
-use crate::assembler::parser::ParserInterface;
 use crate::vm::error::SimpletronError;
 use crate::vm::memory::MemoryInterface;
 use crate::vm::memory::{MemoryData, MemoryPayload};
 
-pub struct MemoryLoader<'a, P, M>
+pub struct MemoryLoader<'a, M>
 where
-    P: ParserInterface,
     M: MemoryInterface,
 {
-    parser: P,
     memory: &'a mut M,
     debug: bool,
 }
 
-impl<'a, P, M> MemoryLoader<'a, P, M>
+impl<'a, M> MemoryLoader<'a, M>
 where
-    P: ParserInterface,
     M: MemoryInterface,
 {
-    pub fn new(parser: P, memory: &'a mut M, debug: bool) -> Self {
-        Self {
-            parser,
-            memory,
-            debug,
-        }
+    pub fn new(memory: &'a mut M, debug: bool) -> Self {
+        Self { memory, debug }
     }
 
-    pub fn load(&mut self, file_path: String) -> Result<(), SimpletronError> {
+    pub fn load_program(&mut self, program: &[u16]) -> Result<(), SimpletronError> {
         if self.debug {
-            println!("\nloading instructions to memory\n");
+            println!("\nloading program into memory\n");
         }
 
-        let instructions = self.parser.parse(file_path)?;
-
-        instructions
-            .into_iter()
-            .map(|instr| MemoryPayload {
-                address: instr.address,
-                data: MemoryData { value: instr.data },
-            })
-            .try_for_each(|payload| self.memory.store_data(payload))?;
+        for (address, word) in program.iter().enumerate() {
+            self.memory.store_data(MemoryPayload {
+                address,
+                data: MemoryData {
+                    value: word.to_string(),
+                },
+            })?;
+        }
 
         Ok(())
     }

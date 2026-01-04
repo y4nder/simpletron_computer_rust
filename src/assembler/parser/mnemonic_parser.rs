@@ -6,6 +6,7 @@ pub struct MnemonicParser;
 #[derive(Debug, Clone)]
 pub enum ParsedLine {
     Label(String),
+    Variable(String),
     Instruction(AsmInstruction),
 }
 
@@ -16,67 +17,81 @@ impl MnemonicParser {
             return Ok(None);
         }
 
-        // Label definition
+        let parts: Vec<&str> = code.split_whitespace().collect();
+
+        // 1️⃣ LABEL (highest priority)
         if code.ends_with(':') {
             let name = code.trim_end_matches(':').to_string();
             return Ok(Some(ParsedLine::Label(name)));
         }
 
-        let parts: Vec<&str> = code.split_whitespace().collect();
-        let head = parts[0];
+        // 2️⃣ VAR declaration (BEFORE mnemonic parsing)
+        if parts.len() == 2 && parts[0] == "VAR" {
+            return Ok(Some(ParsedLine::Variable(parts[1].to_string())));
+        }
 
-        let mnemonic = match head {
-            // I/O
+        // 3️⃣ REAL instruction parsing starts here
+        let mnemonic = match parts[0] {
             "READ" => Mnemonic::Read,
             "READI" => Mnemonic::ReadI,
             "WRITE" => Mnemonic::Write,
             "WRITEA" => Mnemonic::WriteAcc,
 
-            // Memory
             "LOADM" => Mnemonic::LoadM,
             "LOADI" => Mnemonic::LoadI,
             "STORE" => Mnemonic::Store,
 
-            // Arithmetic (memory)
             "ADDM" => Mnemonic::AddM,
-            "SUBM" => Mnemonic::SubM,
-            "DIVM" => Mnemonic::DivM,
-            "MODM" => Mnemonic::ModM,
-            "MULM" => Mnemonic::MulM,
-
-            // Arithmetic (immediate)
             "ADDI" => Mnemonic::AddI,
+            "SUBM" => Mnemonic::SubM,
             "SUBI" => Mnemonic::SubI,
+            "DIVM" => Mnemonic::DivM,
             "DIVI" => Mnemonic::DivI,
+            "MODM" => Mnemonic::ModM,
             "MODI" => Mnemonic::ModI,
+            "MULM" => Mnemonic::MulM,
             "MULI" => Mnemonic::MulI,
 
-            // Control flow
             "JMP" => Mnemonic::Jump,
-            "JN" => Mnemonic::JumpIfNegative,
             "JZ" => Mnemonic::JumpIfZero,
+            "JN" => Mnemonic::JumpIfNegative,
 
-            // Halt
             "HALT" => Mnemonic::Halt,
 
-            _ => return Err(SimpletronError::InvalidInstruction(head.to_string())),
+            _ => return Err(SimpletronError::InvalidInstruction(parts[0].to_string())),
         };
 
-        // Operand rules:
-        // - HALT, WRITEA: no operand
-        // - Everything else here requires exactly one operand (including jumps)
+        // operand handling (as you already fixed)
         let operand = match mnemonic {
-            Mnemonic::Halt | Mnemonic::WriteAcc => None,
-            _ => {
-                let raw = parts
-                    .get(1)
-                    .ok_or(SimpletronError::InvalidInstructionLine { line: parts.len() })?;
-
-                if raw.chars().all(|c| c.is_ascii_digit()) {
-                    Some(Operand::Immediate(raw.parse().unwrap()))
-                } else {
-                    Some(Operand::Label(raw.to_string()))
+            Mnemonic::Halt | Mnemonic::WriteAcc => {
+                if parts.len() != 1 {
+                    return Err(SimpletronError::InvalidInstructionLine);
                 }
+                None
+            }
+
+            Mnemonic::Jump | Mnemonic::JumpIfZero | Mnemonic::JumpIfNegative => {
+                if parts.len() != 2 {
+                    return Err(SimpletronError::InvalidInstructionLine);
+                }
+                let raw = parts[1];
+                Some(if raw.chars().all(|c| c.is_ascii_digit()) {
+                    Operand::Immediate(raw.parse().unwrap())
+                } else {
+                    Operand::Label(raw.to_string())
+                })
+            }
+
+            _ => {
+                if parts.len() != 2 {
+                    return Err(SimpletronError::InvalidInstructionLine);
+                }
+                let raw = parts[1];
+                Some(if raw.chars().all(|c| c.is_ascii_digit()) {
+                    Operand::Immediate(raw.parse().unwrap())
+                } else {
+                    Operand::Variable(raw.to_string())
+                })
             }
         };
 
