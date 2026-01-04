@@ -1,13 +1,10 @@
 use crate::{
-    ParsedInstruction,
     error::SimpletronError,
     instruction::Instruction,
-    memory::{
-        memory_interface::MemoryInterface,
-        memory_payload::{MemoryData, MemoryPayload},
-    },
+    instruction::ParsedInstruction,
+    memory::{MemoryData, MemoryInterface, MemoryPayload},
     operation::Opcode,
-    processor::processor_interface::ProcessorInterface,
+    processor::ProcessorInterface,
 };
 
 use std::io::{self, Write};

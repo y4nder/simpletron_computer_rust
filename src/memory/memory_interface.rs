@@ -1,5 +1,5 @@
 use crate::error::SimpletronError;
-use crate::memory::memory_payload::MemoryPayload;
+use crate::memory::MemoryPayload;
 
 pub trait MemoryInterface {
     fn get_memory_length(&self) -> usize;

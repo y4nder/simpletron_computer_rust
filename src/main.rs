@@ -1,8 +1,11 @@
 use clap::Parser;
 use simpletron_rust::{
-    SimpleMemory, cli::CliArgs, controller::Controller, error::SimpletronError,
-    memory::memory_loader::MemoryLoader, parser::lowlevel_parser::LowLevelParser,
-    processor::simple_processor::SimpleProcessor,
+    cli::CliArgs,
+    controller::Controller,
+    error::SimpletronError,
+    memory::{MemoryLoader, SimpleMemory},
+    parser::LowLevelParser,
+    processor::SimpleProcessor,
 };
 
 fn main() {

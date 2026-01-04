@@ -3,7 +3,7 @@ use std::{
     io::{BufRead, BufReader},
 };
 
-use crate::{ParsedInstruction, error::SimpletronError, parser::ParserInterface};
+use crate::{error::SimpletronError, instruction::ParsedInstruction, parser::ParserInterface};
 
 pub struct LowLevelParser {
     pub debug: bool,

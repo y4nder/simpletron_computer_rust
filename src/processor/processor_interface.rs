@@ -1,4 +1,4 @@
-use crate::ParsedInstruction;
+use crate::instruction::ParsedInstruction;
 
 pub trait ProcessorInterface {
     fn increment_pc(&mut self);

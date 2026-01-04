@@ -1,6 +1,6 @@
 use crate::error::SimpletronError;
-use crate::memory::memory_interface::MemoryInterface;
-use crate::memory::memory_payload::{MemoryData, MemoryPayload};
+use crate::memory::MemoryInterface;
+use crate::memory::{MemoryData, MemoryPayload};
 use crate::parser::ParserInterface;
 
 pub struct MemoryLoader<'a, P, M>

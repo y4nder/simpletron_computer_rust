@@ -1,6 +1,6 @@
 use crate::error::SimpletronError;
-use crate::memory::memory_interface::MemoryInterface;
-use crate::memory::memory_payload::MemoryPayload;
+use crate::memory::MemoryInterface;
+use crate::memory::MemoryPayload;
 
 const DEFAULT_CELL: &str = "0";
 
