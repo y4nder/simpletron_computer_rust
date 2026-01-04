@@ -48,7 +48,7 @@ impl LowLevelParser {
             let parts: Vec<&str> = code_part.split_whitespace().collect();
 
             if parts.len() < 2 {
-                return Err(SimpletronError::InvalidInstructionLine { line: line_no + 1 });
+                return Err(SimpletronError::InvalidInstructionLine);
             }
 
             let address = parts[0]
