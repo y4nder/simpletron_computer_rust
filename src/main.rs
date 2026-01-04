@@ -1,9 +1,9 @@
 use clap::Parser;
 use simpletron_rust::{
     cli::CliArgs,
-    controller::Controller,
     error::SimpletronError,
     memory::{MemoryLoader, SimpleMemory},
+    orchestrator::Orchestrator,
     parser::LowLevelParser,
     processor::SimpleProcessor,
 };
@@ -24,7 +24,7 @@ fn run(args: CliArgs) -> Result<(), SimpletronError> {
             MemoryLoader::new(LowLevelParser::new(args.debug), &mut memory, args.debug);
         loader.load(args.filename)?;
     }
-    let mut controller = Controller::new(cpu, memory, args.debug);
+    let mut controller = Orchestrator::new(cpu, memory, args.debug);
     controller.run()?;
     Ok(())
 }

@@ -9,7 +9,7 @@ use crate::{
 
 use std::io::{self, Write};
 
-pub struct Controller<P, M>
+pub struct Orchestrator<P, M>
 where
     P: ProcessorInterface,
     M: MemoryInterface,
@@ -19,7 +19,7 @@ where
     debug: bool,
 }
 
-impl<P, M> Controller<P, M>
+impl<P, M> Orchestrator<P, M>
 where
     P: ProcessorInterface,
     M: MemoryInterface,
@@ -29,7 +29,7 @@ where
     }
 }
 
-impl<P, M> Controller<P, M>
+impl<P, M> Orchestrator<P, M>
 where
     P: ProcessorInterface,
     M: MemoryInterface,
@@ -105,7 +105,7 @@ where
 }
 
 // instructions definitions
-impl<P, M> Controller<P, M>
+impl<P, M> Orchestrator<P, M>
 where
     P: ProcessorInterface,
     M: MemoryInterface,
