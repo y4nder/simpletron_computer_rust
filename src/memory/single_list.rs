@@ -60,7 +60,7 @@ impl MemoryInterface for SimpleMemory {
         self.memory.len()
     }
 
-    fn store_data(&mut self, payload: MemoryPayload) -> Result<bool, SimpletronError> {
+    fn store_data(&mut self, payload: MemoryPayload) -> Result<(), SimpletronError> {
         if payload.address >= self.memory.len() {
             return Err(SimpletronError::InvalidAddressError(
                 payload.address.to_string(),
@@ -68,7 +68,7 @@ impl MemoryInterface for SimpleMemory {
         }
 
         self.memory[payload.address] = payload.data.value;
-        Ok(true)
+        Ok(())
     }
 
     fn read_data(&self, address: usize) -> Result<String, SimpletronError> {

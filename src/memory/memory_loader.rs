@@ -26,14 +26,6 @@ where
         }
     }
 
-    pub fn memory(&self) -> &M {
-        &self.memory
-    }
-
-    pub fn memory_mut(&mut self) -> &mut M {
-        &mut self.memory
-    }
-
     pub fn load(&mut self, file_path: String) -> Result<(), SimpletronError> {
         if self.debug {
             println!("\nloading instructions to memory\n");
@@ -41,16 +33,13 @@ where
 
         let instructions = self.parser.parse(file_path)?;
 
-        for instruction in instructions {
-            let payload = MemoryPayload {
-                address: instruction.address,
-                data: MemoryData {
-                    value: instruction.data,
-                },
-            };
-
-            self.memory.store_data(payload)?;
-        }
+        instructions
+            .into_iter()
+            .map(|instr| MemoryPayload {
+                address: instr.address,
+                data: MemoryData { value: instr.data },
+            })
+            .try_for_each(|payload| self.memory.store_data(payload))?;
 
         Ok(())
     }
