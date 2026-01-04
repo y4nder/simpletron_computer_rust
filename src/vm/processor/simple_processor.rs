@@ -1,4 +1,4 @@
-use crate::instruction::ParsedInstruction;
+use crate::vm::loader::ParsedInstruction;
 use crate::vm::processor::ProcessorInterface;
 
 pub struct SimpleProcessor {

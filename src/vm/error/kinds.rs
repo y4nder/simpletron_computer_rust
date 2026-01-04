@@ -13,6 +13,10 @@ pub enum SimpletronError {
     DivisionByZero,
     InvalidMemoryData(usize),
     InvalidInstruction(String),
+    InvalidOperand(String),
+    DuplicateLabel(String),
+    UnknownLabel(String),
+    UnresolvedLabel,
 }
 
 impl fmt::Display for SimpletronError {
@@ -38,6 +42,14 @@ impl fmt::Display for SimpletronError {
             SimpletronError::InvalidInstruction(error) => {
                 write!(f, "{} is an invalid instruction", error)
             }
+            SimpletronError::InvalidOperand(error) => {
+                write!(f, "{} is an invalid instruction", error)
+            }
+            SimpletronError::DuplicateLabel(label) => {
+                write!(f, "{} deteceted as duplicate label", label)
+            }
+            SimpletronError::UnknownLabel(label) => write!(f, "Unknown Label {}", label),
+            SimpletronError::UnresolvedLabel => write!(f, "Unresolved Label error"),
         }
     }
 }

@@ -1,6 +1,5 @@
-use crate::assembler::parser::ParserInterface;
-use crate::instruction::ParsedInstruction;
 use crate::vm::error::SimpletronError;
+use crate::{assembler::parser::ParserInterface, vm::loader::ParsedInstruction};
 
 use std::{
     fs::File,

@@ -1,5 +1,6 @@
-use crate::instruction::{Instruction, ParsedInstruction};
 use crate::vm::error::SimpletronError;
+use crate::vm::instruction::Instruction;
+use crate::vm::loader::ParsedInstruction;
 use crate::vm::memory::{MemoryData, MemoryInterface, MemoryPayload};
 use crate::vm::processor::ProcessorInterface;
 
@@ -64,7 +65,7 @@ where
     }
 
     pub fn execute(&mut self, instr: Instruction) -> Result<(), SimpletronError> {
-        use crate::operation::Opcode::*;
+        use crate::vm::operation::Opcode::*;
 
         match instr.opcode {
             Read => self.read(instr.operand, self.debug)?,
