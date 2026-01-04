@@ -1,4 +1,5 @@
-use crate::{error::SimpletronError, operation::Opcode};
+use crate::operation::Opcode;
+use crate::vm::error::SimpletronError;
 use std::convert::TryFrom;
 
 #[derive(Debug, Clone)]

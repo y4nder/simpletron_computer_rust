@@ -1,9 +1,11 @@
+use crate::assembler::parser::ParserInterface;
+use crate::instruction::ParsedInstruction;
+use crate::vm::error::SimpletronError;
+
 use std::{
     fs::File,
     io::{BufRead, BufReader},
 };
-
-use crate::{error::SimpletronError, instruction::ParsedInstruction, parser::ParserInterface};
 
 pub struct LowLevelParser {
     pub debug: bool,

@@ -1,7 +1,7 @@
-use crate::error::SimpletronError;
-use crate::memory::MemoryInterface;
-use crate::memory::{MemoryData, MemoryPayload};
-use crate::parser::ParserInterface;
+use crate::assembler::parser::ParserInterface;
+use crate::vm::error::SimpletronError;
+use crate::vm::memory::MemoryInterface;
+use crate::vm::memory::{MemoryData, MemoryPayload};
 
 pub struct MemoryLoader<'a, P, M>
 where

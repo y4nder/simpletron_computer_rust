@@ -1,11 +1,7 @@
-use crate::{
-    error::SimpletronError,
-    instruction::Instruction,
-    instruction::ParsedInstruction,
-    memory::{MemoryData, MemoryInterface, MemoryPayload},
-    operation::Opcode,
-    processor::ProcessorInterface,
-};
+use crate::instruction::{Instruction, ParsedInstruction};
+use crate::vm::error::SimpletronError;
+use crate::vm::memory::{MemoryData, MemoryInterface, MemoryPayload};
+use crate::vm::processor::ProcessorInterface;
 
 use std::io::{self, Write};
 
@@ -68,7 +64,7 @@ where
     }
 
     pub fn execute(&mut self, instr: Instruction) -> Result<(), SimpletronError> {
-        use Opcode::*;
+        use crate::operation::Opcode::*;
 
         match instr.opcode {
             Read => self.read(instr.operand, self.debug)?,
