@@ -4,22 +4,22 @@ use crate::memory::memory_payload::MemoryPayload;
 
 const DEFAULT_CELL: &str = "0";
 
-pub struct SingleList {
+pub struct SimpleMemory {
     pub memory: Vec<String>,
 }
 
-impl SingleList {
+impl SimpleMemory {
     pub fn new(size: Option<u16>) -> Self {
         let memory = match size {
             Some(size) => vec![DEFAULT_CELL.to_string(); size as usize],
             None => vec!["0".to_string(); 100 as usize],
         };
 
-        SingleList { memory }
+        SimpleMemory { memory }
     }
 }
 
-impl SingleList {
+impl SimpleMemory {
     fn render_header() {
         print!("     ");
         for i in 0..10 {
@@ -55,7 +55,7 @@ impl SingleList {
     }
 }
 
-impl MemoryInterface for SingleList {
+impl MemoryInterface for SimpleMemory {
     fn get_memory_length(&self) -> usize {
         self.memory.len()
     }

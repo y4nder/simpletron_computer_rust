@@ -1,3 +1,4 @@
+pub mod cli;
 pub mod controller;
 pub mod error;
 pub mod instruction;
@@ -7,4 +8,4 @@ pub mod parser;
 pub mod processor;
 
 pub use instruction::ParsedInstruction;
-pub use memory::single_list::SingleList;
+pub use memory::single_list::SimpleMemory;
