@@ -37,12 +37,12 @@ where
         loop {
             let (address, data) = self.fetch_instruction()?;
             let parsed_instr = ParsedInstruction { address, data };
-            self.cpu.update_state(&parsed_instr);
+            self.cpu.update_state(&parsed_instr)?;
 
             if self.debug {
                 println!("");
                 self.cpu.dump();
-                self.memory.dump(self.cpu.get_pc().try_into().unwrap());
+                self.memory.dump(self.cpu.get_pc() as isize);
             }
             self.execute(Instruction::try_from(parsed_instr)?)?;
 
@@ -59,7 +59,7 @@ where
     }
 
     fn fetch_instruction(&self) -> Result<(usize, String), SimpletronError> {
-        let address = usize::try_from(self.cpu.get_pc()).unwrap();
+        let address = self.cpu.get_pc();
         let data = self.memory.read_data(address)?;
         Ok((address, data))
     }
@@ -356,7 +356,7 @@ where
 
     fn jump(&mut self, address: usize, debug: bool) -> Result<(), SimpletronError> {
         self.debug(debug, &format!("JUMP -> address Memory[+{:0>4}]", address));
-        self.cpu.set_pc(address);
+        self.cpu.set_pc(address)?;
         Ok(())
     }
 
@@ -368,7 +368,7 @@ where
 
         let acc = self.cpu.get_acc_value() as i32;
         if acc < 0 {
-            self.cpu.set_pc(address);
+            self.cpu.set_pc(address)?;
         } else {
             self.cpu.increment_pc();
         }
@@ -383,7 +383,7 @@ where
 
         let acc = self.cpu.get_acc_value();
         if acc == 0 {
-            self.cpu.set_pc(address);
+            self.cpu.set_pc(address)?;
         } else {
             self.cpu.increment_pc();
         }

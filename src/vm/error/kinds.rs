@@ -1,12 +1,12 @@
 use core::fmt;
-use std::io;
+use std::{io::Error, num::ParseIntError};
 
 #[derive(Debug)]
 pub enum SimpletronError {
     StoreDataError(String),
     InvalidAddressError(String),
     InvalidInstructionLine,
-    Io(io::Error),
+    Io(Error),
     InvalidAddress { line: usize },
     InvalidOpcode(i32),
     InvalidReadInput(String),
@@ -20,6 +20,7 @@ pub enum SimpletronError {
     DuplicateVariable(String),
     UnknownVariable(String),
     UnresolvedVariable,
+    ParseIntErr(ParseIntError),
 }
 
 impl fmt::Display for SimpletronError {
@@ -60,6 +61,9 @@ impl fmt::Display for SimpletronError {
                 write!(f, "Unknown Variable {}", variable)
             }
             SimpletronError::UnresolvedVariable => write!(f, "Unresolve Variable Error"),
+            SimpletronError::ParseIntErr(err) => {
+                write!(f, "ParseIntErr {}", err)
+            }
         }
     }
 }
@@ -67,5 +71,11 @@ impl fmt::Display for SimpletronError {
 impl From<std::io::Error> for SimpletronError {
     fn from(value: std::io::Error) -> Self {
         SimpletronError::Io(value)
+    }
+}
+
+impl From<ParseIntError> for SimpletronError {
+    fn from(value: ParseIntError) -> Self {
+        SimpletronError::ParseIntErr(value)
     }
 }
