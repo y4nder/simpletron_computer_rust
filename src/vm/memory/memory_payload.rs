@@ -14,3 +14,20 @@ impl From<isize> for MemoryData {
         }
     }
 }
+
+impl MemoryPayload {
+    pub fn new(address: usize, word: &u16) -> Self {
+        MemoryPayload {
+            address,
+            data: MemoryData::new(word),
+        }
+    }
+}
+
+impl MemoryData {
+    pub fn new(word: &u16) -> Self {
+        MemoryData {
+            value: word.to_string(),
+        }
+    }
+}

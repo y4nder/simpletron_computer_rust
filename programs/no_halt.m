@@ -1,0 +1,2 @@
+READ 10
+WRITE 10
