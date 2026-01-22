@@ -11,7 +11,6 @@ use crate::{
 pub mod encoder;
 pub mod instruction;
 pub mod parser;
-pub mod symbol_table;
 
 type LabelTable = HashMap<String, usize>;
 type VarTable = HashMap<String, usize>;
