@@ -23,6 +23,8 @@ pub enum Opcode {
     JumpIfNegative,
     JumpIfZero,
     Halt,
+    JumpIfNotZero,
+    JumpIfGreaterThanZero,
 }
 
 impl TryFrom<i32> for Opcode {
@@ -53,6 +55,8 @@ impl TryFrom<i32> for Opcode {
             41 => Ok(JumpIfNegative),
             42 => Ok(JumpIfZero),
             43 => Ok(Halt),
+            44 => Ok(JumpIfNotZero),
+            45 => Ok(JumpIfGreaterThanZero),
             _ => Err(SimpletronError::InvalidOpcode(code)),
         }
     }

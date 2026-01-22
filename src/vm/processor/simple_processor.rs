@@ -2,7 +2,7 @@ use crate::vm::loader::ParsedInstruction;
 use crate::vm::processor::ProcessorInterface;
 
 pub struct SimpleProcessor {
-    pub accumulator: u32,
+    pub accumulator: i32,
     pub program_counter: u32,
     pub instruction_register: String,
     pub opcode: u32,
@@ -42,11 +42,11 @@ impl ProcessorInterface for SimpleProcessor {
         self.operand = (raw % 100).to_string();
     }
 
-    fn get_acc_value(&self) -> u32 {
+    fn get_acc_value(&self) -> i32 {
         self.accumulator
     }
 
-    fn write_acc(&mut self, value: u32) {
+    fn write_acc(&mut self, value: i32) {
         self.accumulator = value;
     }
 

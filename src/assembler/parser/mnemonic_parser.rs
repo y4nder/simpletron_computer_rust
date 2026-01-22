@@ -55,6 +55,8 @@ impl MnemonicParser {
             "JMP" => Mnemonic::Jump,
             "JZ" => Mnemonic::JumpIfZero,
             "JN" => Mnemonic::JumpIfNegative,
+            "JNZ" => Mnemonic::JumpIfNotZero,
+            "JG" => Mnemonic::JumpIfGreaterThanZero,
 
             "HALT" => Mnemonic::Halt,
 
@@ -70,7 +72,11 @@ impl MnemonicParser {
                 None
             }
 
-            Mnemonic::Jump | Mnemonic::JumpIfZero | Mnemonic::JumpIfNegative => {
+            Mnemonic::Jump
+            | Mnemonic::JumpIfZero
+            | Mnemonic::JumpIfNegative
+            | Mnemonic::JumpIfNotZero
+            | Mnemonic::JumpIfGreaterThanZero => {
                 if parts.len() != 2 {
                     return Err(SimpletronError::InvalidInstructionLine);
                 }
