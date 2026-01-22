@@ -1,9 +1,10 @@
+use crate::vm::error::SimpletronError;
 use crate::vm::loader::ParsedInstruction;
 use crate::vm::processor::ProcessorInterface;
 
 pub struct SimpleProcessor {
     pub accumulator: i32,
-    pub program_counter: u32,
+    pub program_counter: usize,
     pub instruction_register: String,
     pub opcode: u32,
     pub operand: String,
@@ -35,11 +36,12 @@ impl ProcessorInterface for SimpleProcessor {
         println!("operand: +{:0>2}", self.operand);
     }
 
-    fn update_state(&mut self, parsed_instr: &ParsedInstruction) {
+    fn update_state(&mut self, parsed_instr: &ParsedInstruction) -> Result<(), SimpletronError> {
         self.instruction_register = parsed_instr.data.clone();
-        let raw: u32 = parsed_instr.data.parse().expect("Invalid instruction");
+        let raw = parsed_instr.data.parse::<u32>()?;
         self.opcode = raw / 100;
         self.operand = (raw % 100).to_string();
+        Ok(())
     }
 
     fn get_acc_value(&self) -> i32 {
@@ -50,11 +52,12 @@ impl ProcessorInterface for SimpleProcessor {
         self.accumulator = value;
     }
 
-    fn set_pc(&mut self, value: usize) {
-        self.program_counter = value.try_into().unwrap();
+    fn set_pc(&mut self, value: usize) -> Result<(), SimpletronError> {
+        self.program_counter = value;
+        Ok(())
     }
 
-    fn get_pc(&self) -> u32 {
+    fn get_pc(&self) -> usize {
         self.program_counter
     }
 }
