@@ -1,6 +1,6 @@
 use crate::vm::error::SimpletronError;
 use crate::vm::memory::MemoryInterface;
-use crate::vm::memory::{MemoryData, MemoryPayload};
+use crate::vm::memory::MemoryPayload;
 
 pub struct MemoryLoader<'a, M>
 where
@@ -24,12 +24,7 @@ where
         }
 
         for (address, word) in program.iter().enumerate() {
-            self.memory.store_data(MemoryPayload {
-                address,
-                data: MemoryData {
-                    value: word.to_string(),
-                },
-            })?;
+            self.memory.store_data(MemoryPayload::new(address, word))?;
         }
 
         Ok(())
