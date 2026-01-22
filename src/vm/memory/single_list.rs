@@ -72,9 +72,10 @@ impl MemoryInterface for SimpleMemory {
     }
 
     fn read_data(&self, address: usize) -> Result<String, SimpletronError> {
-        match self.is_valid_address(address) {
-            true => Ok(self.memory[address].clone()),
-            false => Err(SimpletronError::InvalidAddressError(address.to_string())),
+        if !self.is_valid_address(address) {
+            Err(SimpletronError::InvalidAddressError(address.to_string()))
+        } else {
+            Ok(self.memory[address].clone())
         }
     }
 
