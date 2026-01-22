@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     assembler::{
-        instruction::Operand,
+        instruction::{Mnemonic, Operand},
         parser::mnemonic_parser::{MnemonicParser, ParsedLine},
     },
     vm::error::SimpletronError,
@@ -11,7 +11,6 @@ use crate::{
 pub mod encoder;
 pub mod instruction;
 pub mod parser;
-pub mod symbol_table;
 
 type LabelTable = HashMap<String, usize>;
 type VarTable = HashMap<String, usize>;
@@ -23,6 +22,18 @@ pub fn assemble(source: &str) -> Result<Vec<u16>, SimpletronError> {
         if let Some(p) = MnemonicParser::parse_line(line)? {
             parsed.push(p);
         }
+    }
+
+    let has_halt = parsed.iter().any(|line| {
+        if let ParsedLine::Instruction(instr) = line {
+            instr.mnemonic == Mnemonic::Halt
+        } else {
+            false
+        }
+    });
+
+    if !has_halt {
+        return Err(SimpletronError::MissingHalt);
     }
 
     let (labels, vars, _) = first_pass(&parsed)?;
