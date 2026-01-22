@@ -89,6 +89,8 @@ where
             JumpIfNegative => self.jump_if_negative(instr.operand, self.debug)?,
             JumpIfZero => self.jump_if_zero(instr.operand, self.debug)?,
             Halt => self.halt(self.debug)?,
+            JumpIfNotZero => self.jump_if_not_zero(instr.operand, self.debug)?,
+            JumpIfGreaterThanZero => self.jump_if_greater_than_zero(instr.operand, self.debug)?,
         }
         Ok(())
     }
@@ -166,7 +168,7 @@ where
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap();
 
-        let value: u32 = match input.trim().parse() {
+        let value: i32 = match input.trim().parse() {
             Ok(v) => v,
             Err(_) => {
                 eprintln!("Invalid number");
@@ -218,7 +220,7 @@ where
             .map_err(|_| SimpletronError::InvalidMemoryData(address))?;
 
         let acc = self.cpu.get_acc_value() as i32;
-        self.cpu.write_acc((acc + value) as u32);
+        self.cpu.write_acc(acc + value);
 
         self.cpu.increment_pc();
         Ok(())
@@ -234,7 +236,7 @@ where
             .map_err(|_| SimpletronError::InvalidMemoryData(address))?;
 
         let acc = self.cpu.get_acc_value() as i32;
-        self.cpu.write_acc((acc - value) as u32);
+        self.cpu.write_acc(acc - value);
 
         self.cpu.increment_pc();
         Ok(())
@@ -250,7 +252,7 @@ where
             .map_err(|_| SimpletronError::InvalidMemoryData(address))?;
 
         let acc = self.cpu.get_acc_value() as i32;
-        self.cpu.write_acc((acc * value) as u32);
+        self.cpu.write_acc(acc * value);
 
         self.cpu.increment_pc();
         Ok(())
@@ -270,7 +272,7 @@ where
         }
 
         let acc = self.cpu.get_acc_value() as i32;
-        self.cpu.write_acc((acc / divisor) as u32);
+        self.cpu.write_acc(acc / divisor);
 
         self.cpu.increment_pc();
         Ok(())
@@ -290,7 +292,7 @@ where
         }
 
         let acc = self.cpu.get_acc_value() as i32;
-        self.cpu.write_acc((acc % divisor) as u32);
+        self.cpu.write_acc((acc % divisor) as i32);
 
         self.cpu.increment_pc();
         Ok(())
@@ -300,7 +302,7 @@ where
         self.debug(debug, &format!("ACC += value {}", operand));
 
         let acc = self.cpu.get_acc_value() as i32;
-        self.cpu.write_acc((acc + operand as i32) as u32);
+        self.cpu.write_acc((acc + operand as i32) as i32);
 
         self.cpu.increment_pc();
         Ok(())
@@ -310,7 +312,7 @@ where
         self.debug(debug, &format!("ACC -= value {}", operand));
 
         let acc = self.cpu.get_acc_value() as i32;
-        self.cpu.write_acc((acc - operand as i32) as u32);
+        self.cpu.write_acc((acc - operand as i32) as i32);
 
         self.cpu.increment_pc();
         Ok(())
@@ -320,7 +322,7 @@ where
         self.debug(debug, &format!("ACC *= value {}", operand));
 
         let acc = self.cpu.get_acc_value() as i32;
-        self.cpu.write_acc((acc * operand as i32) as u32);
+        self.cpu.write_acc(acc * operand as i32);
 
         self.cpu.increment_pc();
         Ok(())
@@ -334,7 +336,7 @@ where
         }
 
         let acc = self.cpu.get_acc_value() as i32;
-        self.cpu.write_acc((acc / operand as i32) as u32);
+        self.cpu.write_acc(acc / operand as i32);
 
         self.cpu.increment_pc();
         Ok(())
@@ -348,7 +350,7 @@ where
         }
 
         let acc = self.cpu.get_acc_value() as i32;
-        self.cpu.write_acc((acc % operand as i32) as u32);
+        self.cpu.write_acc(acc % operand as i32);
 
         self.cpu.increment_pc();
         Ok(())
@@ -397,5 +399,44 @@ where
         self.memory.dump(-1);
 
         std::process::exit(0);
+    }
+
+    fn jump_if_not_zero(&mut self, address: usize, debug: bool) -> Result<(), SimpletronError> {
+        self.debug(
+            debug,
+            &format!("JUMP IF NOT ZERO -> address Memory[+{:0>4}]", address),
+        );
+
+        let acc = self.cpu.get_acc_value();
+
+        if acc != 0 {
+            self.cpu.set_pc(address);
+        } else {
+            self.cpu.increment_pc();
+        }
+        Ok(())
+    }
+
+    fn jump_if_greater_than_zero(
+        &mut self,
+        address: usize,
+        debug: bool,
+    ) -> Result<(), SimpletronError> {
+        self.debug(
+            debug,
+            &format!(
+                "JUMP IF GREATER THAN ZERO -> address Memory[+{:0>4}]",
+                address
+            ),
+        );
+
+        let acc = self.cpu.get_acc_value();
+
+        if acc > 0 {
+            self.cpu.set_pc(address);
+        } else {
+            self.cpu.increment_pc();
+        }
+        Ok(())
     }
 }

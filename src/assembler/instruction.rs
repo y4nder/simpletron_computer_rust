@@ -29,6 +29,8 @@ pub enum Mnemonic {
     Jump,
     JumpIfNegative,
     JumpIfZero,
+    JumpIfNotZero,
+    JumpIfGreaterThanZero,
 
     Halt,
 }
